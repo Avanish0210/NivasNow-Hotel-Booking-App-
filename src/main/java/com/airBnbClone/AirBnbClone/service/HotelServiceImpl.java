@@ -1,15 +1,20 @@
 package com.airBnbClone.AirBnbClone.service;
 
 import com.airBnbClone.AirBnbClone.Dto.HotelDto;
+import com.airBnbClone.AirBnbClone.Dto.HotelInfoDto;
+import com.airBnbClone.AirBnbClone.Dto.RoomDto;
 import com.airBnbClone.AirBnbClone.entity.Hotel;
 import com.airBnbClone.AirBnbClone.entity.Room;
 import com.airBnbClone.AirBnbClone.exception.ResourceNotFoundException;
 import com.airBnbClone.AirBnbClone.repository.HotelRepository;
 import com.airBnbClone.AirBnbClone.repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -55,9 +60,15 @@ public class HotelServiceImpl implements HotelService {
         }
     }
     @Override
+    @Transactional
     public void deleteHotelById(Long id) {
-        isExist(id);
+        Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not found"));
         hotelRepository.deleteById(id);
+        for(Room room : hotel.getRooms()){
+            inventoryService.deleteAllInventories(room);
+            roomRepository.deleteById(room.getId());
+        }
+        log.info("Hotel deleted successfully");
     }
 
     @Override
@@ -70,6 +81,16 @@ public class HotelServiceImpl implements HotelService {
             inventoryService.initializeRoomForAYear(room);
         }
 
+    }
+
+    @Override
+    public HotelInfoDto getHotelInfoById(Long hotelId) {
+        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Not found"));
+        List<RoomDto> rooms = hotel.getRooms()
+                .stream()
+                .map((elements)-> modelMapper.map(elements , RoomDto.class))
+                .toList();
+        return new HotelInfoDto(modelMapper.map(hotel , HotelDto.class) , rooms);
     }
 
 }
