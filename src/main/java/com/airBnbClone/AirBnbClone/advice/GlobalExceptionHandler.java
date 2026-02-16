@@ -1,6 +1,7 @@
 package com.airBnbClone.AirBnbClone.advice;
 
 import com.airBnbClone.AirBnbClone.exception.ResourceNotFoundException;
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +17,15 @@ public class GlobalExceptionHandler {
                 .message(exception.getMessage())
                 .build();
 
+        return buildErrorResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthenticationException(AuthenticationException ex) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .message(ex.getMessage())
+                .build();
         return buildErrorResponseEntity(apiError);
     }
 

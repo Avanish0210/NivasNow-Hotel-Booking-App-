@@ -6,7 +6,6 @@ import com.airBnbClone.AirBnbClone.repository.HotelMinPriceRepository;
 import com.airBnbClone.AirBnbClone.repository.HotelRepository;
 import com.airBnbClone.AirBnbClone.repository.InventoryRepository;
 import com.airBnbClone.AirBnbClone.strategy.PricingService;
-import com.airBnbClone.AirBnbClone.strategy.PricingStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,7 +48,7 @@ public class PricingUpdateService {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusYears(1);
 
-        List<Inventory> inventoryList = inventoryRepository.findByHotelAndDatebetween(hotel );
+        List<Inventory> inventoryList = inventoryRepository.findByHotelAndDateBetween(hotel , startDate, endDate );
         updateInventoryPrice(inventoryList);
         updateHotelMinPrice(hotel , inventoryList , startDate , endDate);
 
