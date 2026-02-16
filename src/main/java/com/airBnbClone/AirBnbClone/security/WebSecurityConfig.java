@@ -28,6 +28,8 @@ public class WebSecurityConfig {
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**" , "/oauth2/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
+                        .requestMatchers("/BOOKINGS/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf->csrf.disable())
