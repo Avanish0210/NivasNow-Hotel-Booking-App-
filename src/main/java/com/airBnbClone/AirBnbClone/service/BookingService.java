@@ -3,10 +3,9 @@ package com.airBnbClone.AirBnbClone.service;
 import com.airBnbClone.AirBnbClone.Dto.BookingDto;
 import com.airBnbClone.AirBnbClone.Dto.BookingRequest;
 import com.airBnbClone.AirBnbClone.Dto.GuestDto;
-import com.airBnbClone.AirBnbClone.entity.Guest;
+import com.stripe.model.Event;
 
 import java.util.List;
-import java.util.Set;
 
 public interface BookingService {
 
@@ -14,4 +13,9 @@ public interface BookingService {
 
     BookingDto addGuests(Long bookingId, List<GuestDto> guestDtoList);
 
+    String initiatePayments(Long bookingId);
+
+    void capturePayment(Event event);
+
+    void cancelBooking(Long bookingId);
 }

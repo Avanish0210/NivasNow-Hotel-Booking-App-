@@ -1,4 +1,4 @@
-package com.airBnbClone.AirBnbClone.security;
+package com.airBnbClone.AirBnbClone.controller;
 
 import com.airBnbClone.AirBnbClone.Dto.LoginDto;
 import com.airBnbClone.AirBnbClone.Dto.LoginResponseDto;
@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,41 +21,38 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 
 @RestController
-@RequestMapping
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
     private final AuthService authService;
 
-    //signUp up api
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signup(@RequestBody SignUpDto signUpDto) {
-        UserDto userDto = userService.signup(signUpDto);
-        return ResponseEntity.ok(userDto);
+        return new ResponseEntity<>(authService.signup(signUpDto) , HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto , HttpServletRequest request , HttpServletResponse response) {
-        LoginResponseDto loginResponseDto = authService.login(loginDto);
+        String[] tokens = authService.login(loginDto);
 
-        Cookie cookie = new Cookie("token", loginResponseDto.getRefreshToken());
+        Cookie cookie = new Cookie("refreshToken", tokens[1]);
         cookie.setHttpOnly(true);
-        response.addCookie(cookie);
-        return ResponseEntity.ok(loginResponseDto);
 
+        response.addCookie(cookie);
+        return ResponseEntity.ok(new LoginResponseDto(tokens[0]));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request) {
-        String refreshToken = Arrays.stream(request.getCookies()).filter(
-                cookie -> "refreshToken".equals(cookie.getName()))
+        String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElseThrow(() -> new AuthenticationServiceException("Invalid refreshToken"));
-        LoginResponseDto loginResponseDto = authService.refresh(refreshToken);
+        String accessToken = authService.refresh(refreshToken);
 
-        return ResponseEntity.ok(loginResponseDto);
+        return ResponseEntity.ok(new LoginResponseDto(accessToken));
 
     }
 }

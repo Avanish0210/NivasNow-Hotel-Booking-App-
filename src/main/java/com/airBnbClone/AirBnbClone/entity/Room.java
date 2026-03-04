@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "Room")
 public class Room {
 
     @Id
@@ -37,6 +36,7 @@ public class Room {
 
     @Column(nullable = false )
     private Integer totalCount;
+
     @Column(nullable = false )
     private Integer capacity;
 

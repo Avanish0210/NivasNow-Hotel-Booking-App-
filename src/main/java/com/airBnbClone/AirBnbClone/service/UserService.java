@@ -20,8 +20,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -36,16 +34,5 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public UserDto signup(SignUpDto signUpDto) {
-        Optional<User> user = userRepository.findByEmail(signUpDto.getEmail());
-        if(user.isPresent()){
-            throw new BadCredentialsException("User already exists");
-        }
-        User toBeCreated = modelMapper.map(signUpDto , User.class);
-        toBeCreated.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
-        User saveUser = userRepository.save(toBeCreated);
-
-        return modelMapper.map(saveUser, UserDto.class);
-    }
 
 }

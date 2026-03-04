@@ -12,6 +12,6 @@ public class ApiError {
 
     private HttpStatus status;
     private String message;
-    private String errors;
+    private List<String> subErrors;
 
 }

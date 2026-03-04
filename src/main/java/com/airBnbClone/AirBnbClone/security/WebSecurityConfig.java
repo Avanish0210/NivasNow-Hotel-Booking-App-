@@ -3,6 +3,8 @@ package com.airBnbClone.AirBnbClone.security;
 import com.airBnbClone.AirBnbClone.security.filter.JwtAuthFilter;
 import com.airBnbClone.AirBnbClone.security.handler.OAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,7 +15,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
@@ -23,24 +27,40 @@ public class WebSecurityConfig {
     private final OAuthSuccessHandler oAuth2SuccessHandler;
     private final JwtAuthFilter jwtAuthFilter;
 
+    @Autowired
+    @Qualifier("handlerExceptionResolver")
+    private HandlerExceptionResolver handlerExceptionResolver;
+
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .csrf(csrf->csrf.disable())
+                .addFilterBefore(jwtAuthFilter , UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**" , "/oauth2/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
-                        .requestMatchers("/BOOKINGS/**").authenticated()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/bookings/**").authenticated()
+                        .anyRequest().permitAll()
                 )
-                .csrf(csrf->csrf.disable())
-                .addFilterBefore(jwtAuthFilter , UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth->oauth.successHandler(oAuth2SuccessHandler));
+                .oauth2Login(oauth->oauth.successHandler(oAuth2SuccessHandler))
+                .exceptionHandling(exHandlingConfig -> exHandlingConfig.accessDeniedHandler(accessDeniedHandler()));
         return httpSecurity.build();
     }
 
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            handlerExceptionResolver.resolveException(request, response, null, accessDeniedException);
+        };
+    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
 

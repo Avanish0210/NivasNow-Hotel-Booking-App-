@@ -1,6 +1,6 @@
 package com.airBnbClone.AirBnbClone.entity.enums;
 
 public enum Role {
-    Guest,
+    GUEST,
     HOTEL_MANAGER
 }
