@@ -17,6 +17,7 @@ import com.stripe.param.RefundCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.airBnbClone.AirBnbClone.entity.enums.BookingStatus.RESERVED;
 
@@ -210,6 +212,20 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public List<BookingDto> getAllBookingsByHotel(Long hotelId) {
+        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(()-> new ResourceNotFoundException("Hotel not found with id: "+hotelId));
+        User user = getCurrentUser();
+
+        if(!user.equals(hotel.getOwner())) throw new UnAuthorizedException("Hotel does not belong to this user");
+
+        List<Booking> bookings  = bookingRepository.findByHotel(hotel);
+
+        return bookings.stream()
+                .map(elements -> modelMapper.map(elements , BookingDto.class))
+                .collect(Collectors.toList());
     }
 
     public boolean hasBookingExpired(Booking booking) {

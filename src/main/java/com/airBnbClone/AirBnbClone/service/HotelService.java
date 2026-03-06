@@ -4,6 +4,8 @@ import com.airBnbClone.AirBnbClone.Dto.HotelDto;
 import com.airBnbClone.AirBnbClone.Dto.HotelInfoDto;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public interface HotelService {
 
     HotelDto createNewHotel(HotelDto hotelDto);
@@ -15,4 +17,6 @@ public interface HotelService {
     void activeHotel(Long hotelId);
 
     HotelInfoDto getHotelInfoById(Long hotelId);
+
+    List<HotelDto> getAllHotels();
 }

@@ -4,6 +4,7 @@ import com.airBnbClone.AirBnbClone.Dto.BookingDto;
 import com.airBnbClone.AirBnbClone.Dto.BookingRequest;
 import com.airBnbClone.AirBnbClone.Dto.GuestDto;
 import com.stripe.model.Event;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface BookingService {
     void capturePayment(Event event);
 
     void cancelBooking(Long bookingId);
+
+    List<BookingDto> getAllBookingsByHotel(Long hotelId);
 }

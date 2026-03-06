@@ -1,6 +1,8 @@
 package com.airBnbClone.AirBnbClone.controller;
 
+import com.airBnbClone.AirBnbClone.Dto.BookingDto;
 import com.airBnbClone.AirBnbClone.Dto.HotelDto;
+import com.airBnbClone.AirBnbClone.service.BookingService;
 import com.airBnbClone.AirBnbClone.service.HotelService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/hotels")
 @Slf4j
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class HotelController {
 
     private final HotelService hotelService;
+    private final BookingService bookingService;
 
     @PostMapping
     public ResponseEntity<HotelDto> createNewHotel(@RequestBody HotelDto hotelDto){
@@ -46,6 +51,16 @@ public class HotelController {
     public ResponseEntity<Void> activeHotel(@PathVariable Long hotelId){
         hotelService.activeHotel(hotelId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<HotelDto>> getAllHotels() {
+        return ResponseEntity.ok(hotelService.getAllHotels());
+    }
+
+    @GetMapping("/{hotelId}/bookings")
+    public ResponseEntity<List<BookingDto>> getBookingsByHotelId(@PathVariable Long hotelId){
+        return ResponseEntity.ok(bookingService.getAllBookingsByHotel(hotelId));
     }
 
 }

@@ -13,11 +13,13 @@ import com.airBnbClone.AirBnbClone.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -116,6 +118,21 @@ public class HotelServiceImpl implements HotelService {
                 .map((elements)-> modelMapper.map(elements , RoomDto.class))
                 .toList();
         return new HotelInfoDto(modelMapper.map(hotel , HotelDto.class) , rooms);
+    }
+
+    @Override
+    public List<HotelDto> getAllHotels() {
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(user==null){
+            throw new UnAuthorizedException("This user does not own this hotel");
+        }
+        log.info("Getting all hotels for the admin user with ID: {}", user.getId());
+        List<Hotel> hotels = hotelRepository.findByOwner(user);
+
+        return hotels
+                .stream()
+                .map(elements -> modelMapper.map(elements , HotelDto.class))
+                .collect(Collectors.toList());
     }
 
 }
