@@ -19,13 +19,13 @@ public class HotelBrowseController {
     private final HotelService hotelService;
 
     @GetMapping("/search")
-    public ResponseEntity<Page<HotelPriceDto>> searchHotel(@RequestBody HotelSearchRequest hotelSearchRequest){
+    public ResponseEntity<Page<HotelPriceDto>> searchHotel(@ModelAttribute HotelSearchRequest hotelSearchRequest) {
         var page = inventoryService.searchHotels(hotelSearchRequest);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{hotelId}/info")
-    public ResponseEntity<HotelInfoDto> getHotelInfo(@PathVariable Long hotelId){
+    public ResponseEntity<HotelInfoDto> getHotelInfo(@PathVariable Long hotelId) {
         return ResponseEntity.ok(hotelService.getHotelInfoById(hotelId));
     }
 

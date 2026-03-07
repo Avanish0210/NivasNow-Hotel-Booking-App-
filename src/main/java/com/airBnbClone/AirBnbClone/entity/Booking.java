@@ -55,9 +55,8 @@ public class Booking {
     private BookingStatus bookingStatus;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "booking_guest", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "guest_id")
-    )
-    private Set<Guest> guests;
+    @JoinTable(name = "booking_guest", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "guest_id"))
+    private Set<Guest> guests = new java.util.HashSet<>();
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;

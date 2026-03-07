@@ -29,16 +29,17 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signup(@RequestBody SignUpDto signUpDto) {
-        return new ResponseEntity<>(authService.signup(signUpDto) , HttpStatus.CREATED);
+        return new ResponseEntity<>(authService.signup(signUpDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto , HttpServletRequest request , HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto, HttpServletRequest request,
+            HttpServletResponse response) {
         String[] tokens = authService.login(loginDto);
 
         Cookie cookie = new Cookie("refreshToken", tokens[1]);
         cookie.setHttpOnly(true);
-
+        cookie.setPath("/");
         response.addCookie(cookie);
         return ResponseEntity.ok(new LoginResponseDto(tokens[0]));
     }

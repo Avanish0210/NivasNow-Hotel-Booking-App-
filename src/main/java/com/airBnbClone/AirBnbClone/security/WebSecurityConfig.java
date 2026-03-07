@@ -34,15 +34,16 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf(csrf->csrf.disable())
-                .addFilterBefore(jwtAuthFilter , UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> {
+                })
+                .csrf(csrf -> csrf.disable())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**" , "/oauth2/**").permitAll()
+                        .requestMatchers("/auth/**", "/oauth2/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
                         .requestMatchers("/bookings/**").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .oauth2Login(oauth->oauth.successHandler(oAuth2SuccessHandler))
+                        .anyRequest().permitAll())
+                .oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler))
                 .exceptionHandling(exHandlingConfig -> exHandlingConfig.accessDeniedHandler(accessDeniedHandler()));
         return httpSecurity.build();
     }
@@ -58,11 +59,10 @@ public class WebSecurityConfig {
             handlerExceptionResolver.resolveException(request, response, null, accessDeniedException);
         };
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 
 }

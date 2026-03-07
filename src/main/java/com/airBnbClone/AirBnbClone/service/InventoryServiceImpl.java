@@ -60,11 +60,22 @@ public class InventoryServiceImpl implements InventoryService {
     public Page<HotelPriceDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
         log.info("searchHotels");
         Pageable pageable = PageRequest.of(hotelSearchRequest.getPage(), hotelSearchRequest.getSize());
-        long dateCount = ChronoUnit.DAYS.between(hotelSearchRequest.getStartDate(), hotelSearchRequest.getEndDate());
-        Page<HotelPriceDto> hotelPage =
-                hotelMinPriceRepository.findHotelsWithAvailableInventory(hotelSearchRequest.getCity(),
-                        hotelSearchRequest.getStartDate(), hotelSearchRequest.getEndDate(), hotelSearchRequest.getRoomsCount(),
-                        dateCount, pageable);
+
+        LocalDate startDate = hotelSearchRequest.getStartDate() != null ? hotelSearchRequest.getStartDate()
+                : LocalDate.now();
+        LocalDate endDate = hotelSearchRequest.getEndDate() != null ? hotelSearchRequest.getEndDate()
+                : startDate.plusDays(1);
+        if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+            endDate = startDate.plusDays(1);
+        }
+        long dateCount = ChronoUnit.DAYS.between(startDate, endDate);
+
+        String city = hotelSearchRequest.getCity() != null ? hotelSearchRequest.getCity().trim() : "";
+        Integer roomsCount = hotelSearchRequest.getRoomsCount() != null ? hotelSearchRequest.getRoomsCount() : 1;
+
+        Page<HotelPriceDto> hotelPage = hotelMinPriceRepository.findHotelsWithAvailableInventory(city,
+                startDate, endDate, roomsCount,
+                dateCount, pageable);
         log.info("Hotels found on availability");
 
         return hotelPage;
