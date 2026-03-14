@@ -46,14 +46,13 @@ export function AuthProvider({ children }) {
     };
 
     useEffect(() => {
-        if (token) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                setUser({ email: payload.sub, roles: payload.roles || [] });
-            } catch {
-                // invalid token
-            }
-        }
+      const handleTokenRefresh = () => {
+        setToken(localStorage.getItem("accessToken"));
+      };
+
+      window.addEventListener("tokenRefreshed", handleTokenRefresh);
+
+      return () => window.removeEventListener("tokenRefreshed", handleTokenRefresh);
     }, []);
 
     return (
